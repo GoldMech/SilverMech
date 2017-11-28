@@ -12,6 +12,7 @@ import (
 
 	"./moderation"
 	"./info"
+	"./currency"
 )
 
 /**
@@ -147,6 +148,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 				case "welcome":
 					info.InfoFile(s, useChannel, "welcome")
+
+				case "balance":
+					currency.Balance(s, useChannel, "1000", m.Author.Username)
 
 				case "test":
 					info.InfoFile(s, useChannel, "rules")
