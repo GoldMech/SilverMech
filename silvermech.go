@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"syscall"
 	"strings"
+	"syscall"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 
-	"./moderation"
-	"./info"
 	"./currency"
+	"./info"
+	"./moderation"
 )
 
 /**
@@ -38,11 +38,10 @@ func main() {
 		Create Discord Bot
 	*/
 	silverMech, err := discordgo.New("Bot " + token)
-	if( err != nil ) {
+	if err != nil {
 		return
 	}
 	fmt.Println("Bot Connection Created Sucessfully.")
-
 
 	/*
 		Startup Data
@@ -54,18 +53,16 @@ func main() {
 	*/
 	silverMech.AddHandler(moderation.Ready)
 	silverMech.AddHandler(messageCreate)
-	
 
 	/*
 		Open Discord Bot Connection
 	*/
 	err = silverMech.Open()
-	if( err != nil ) {
+	if err != nil {
 		fmt.Println("Bot Failed to Open")
 	} else {
 		fmt.Println("Bot Connection Opened Sucessfully.")
 	}
-	
 
 	/*
 		Memory clean and closing control
@@ -80,62 +77,54 @@ func main() {
 	silverMech.Close()
 }
 
-
-
-
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	
+
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 
-
 	// If the message is "ping" reply with "Pong!"
 	if m.Content != "" {
 		if (m.Content[0] == '^' || m.Content[0] == '~') && m.Type == 0 {
 
-			
 			/*
 				Retrieve Channel Information
 			*/
 			var useChannel string
 
 			postChannel, err := s.UserChannelCreate(m.Author.ID)
-			if err != nil  {
+			if err != nil {
 				fmt.Println("Couldn't get the channel struct")
 				return
-			} 
+			}
 
 			privateChannel, err := s.Channel(m.ChannelID)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
-			
+
 			if m.Content[0] == '~' {
 				useChannel = privateChannel.ID
 			} else {
 				useChannel = postChannel.ID
 			}
 
-	
 			/*
 				Check if the ^ command is being used in a channel on the guild ID specified in .env
 			*/
 			if postChannel.GuildID != os.Getenv("GUILD_ID") && postChannel.GuildID != "" {
-				s.ChannelMessageSend(postChannel.ID, postChannel.GuildID + " is not a valid guild id! Make sure you are in our discord, and not using ^ commands in private chat!")
+				s.ChannelMessageSend(postChannel.ID, postChannel.GuildID+" is not a valid guild id! Make sure you are in our discord, and not using ^ commands in private chat!")
 
 			} else {
 
-				
-
 				fmt.Println(m.Author.Username + ": " + m.Content)
-				switch c := strings.Split(m.Content[1:], " ");  strings.ToLower(c[0]) {
+				switch c := strings.Split(m.Content[1:], " "); strings.ToLower(c[0]) {
 
 				case "hello":
-					s.ChannelMessageSend(postChannel.ID, "Hello " + m.Author.Mention() + "!")
+					s.ChannelMessageSend(postChannel.ID, "Hello "+m.Author.Mention()+"!")
 
 				case "info":
 					info.SafeInfoFIle(s, useChannel, c[1])
@@ -156,7 +145,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 					info.InfoFile(s, useChannel, "rules")
 
 				default:
-					s.ChannelMessageSend(useChannel, "Unknown Command: " + c[0])
+					s.ChannelMessageSend(useChannel, "Unknown Command: "+c[0])
 
 				}
 
@@ -165,7 +154,4 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 
-		
 }
-
-

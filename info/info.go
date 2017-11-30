@@ -1,8 +1,8 @@
 package info
 
 import (
-	"io/ioutil"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -16,17 +16,17 @@ func RefreshFileList() {
 		fmt.Println(err)
 		return
 	}
-	
+
 	fileList = make(map[string]bool)
 
 	fileListString = "**List of info topics:** \n" + "```\n"
 
 	for _, file := range files {
 		fmt.Println("Loaded file: " + file.Name())
-		fileListString += file.Name()[:len(file.Name()) - 4] + "\n"
-		fileList[file.Name()[:len(file.Name()) - 4]] = true
+		fileListString += file.Name()[:len(file.Name())-4] + "\n"
+		fileList[file.Name()[:len(file.Name())-4]] = true
 	}
-	
+
 	fileListString = fileListString + "```"
 }
 
@@ -36,15 +36,14 @@ func InfoFile(s *discordgo.Session, c string, file string) {
 
 	if err != nil {
 		s.ChannelMessageSend(c, "Error finding info, try again later.")
-        return 
-    }
+		return
+	}
 
-    fileOutput := string(b) 
+	fileOutput := string(b)
 
 	s.ChannelMessageSend(c, fileOutput)
 
 }
-
 
 func List(s *discordgo.Session, c string) {
 	RefreshFileList()
@@ -56,13 +55,12 @@ func SafeInfoFIle(s *discordgo.Session, c string, file string) {
 
 	fmt.Println("FILE: !" + file + "!")
 	if file == "list" {
-		List(s,c)
+		List(s, c)
 	} else if fileList[file] == true {
 		InfoFile(s, c, file)
 	} else {
 		fmt.Println(fileList[file])
 		s.ChannelMessageSend(c, "Invalid topic")
 	}
-	
-}
 
+}
